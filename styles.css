@@ -122,6 +122,6 @@ model-viewer > #ar-prompt > img {
   left: -100px;
   width: 150%;
   height: 100%;
-  box-shadow: 0 0 200px rgba(0,0,0,0.1) inset;
+  box-shadow: 0 0 200px rgba(0,0,0, 0.4) inset;
   pointer-events: none;
 }
