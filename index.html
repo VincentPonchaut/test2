@@ -165,7 +165,9 @@
         modelViewer.setAttribute("camera-target", "auto auto auto");
         modelViewer.cameraOrbit = "auto auto auto";
         modelViewer.setAttribute("field-of-view", "auto");
-        // rotateSkybox(180);
+        rotateSkybox(180);
+        //modelViewer.cameraOrbit = "180deg 75deg 105%";
+        modelViewer.cameraOrbit = "180rad auto auto";
 
         hotspotIndex = 0;
       }
@@ -236,13 +238,26 @@
         // rotateSkybox(180);
       }
 
-      function rotateSkybox(delta) {      
-        skyboxAngle += delta;
+      function rotateSkybox(delta) {
+        console.log("skyboxAngle", skyboxAngle, delta)
         const orbit = modelViewer.getCameraOrbit();
-        orbit.theta += delta;
+        orbit.theta = delta;
         modelViewer.cameraOrbit = orbit.toString();
-        modelViewer.resetTurntableRotation(skyboxAngle);
-        modelViewer.jumpCameraToGoal();
+        modelViewer.resetTurntableRotation(delta);
+        
+        if (skyboxAngle !== delta) {
+          modelViewer.jumpCameraToGoal();
+          skyboxAngle = delta
+        }
+        
+        // if (skyboxAngle === delta)
+        //   return
+        // skyboxAngle = delta;
+        // const orbit = modelViewer.getCameraOrbit();
+        // orbit.theta = delta;
+        // modelViewer.cameraOrbit = orbit.toString();
+        // modelViewer.resetTurntableRotation(skyboxAngle);
+        // modelViewer.jumpCameraToGoal();
       }
 
       function changeAmbiance() {
