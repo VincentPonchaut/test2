@@ -14,7 +14,7 @@
     ></script>
 
     <!-- MDL -->
-    <link rel="stylesheet" href="./material.min.css?v=3">
+    <link rel="stylesheet" href="./material.css?v=3">
     <script src="./material.min.js?v=3"></script>
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
 
@@ -26,9 +26,28 @@
       .top-left { position: fixed; top: 10px; left: 10px; }
 
       .capsule {
+        width: 101px; 
+        height: 50px; 
+        background-color: white; 
+        display: grid; grid-template-rows: 1; grid-template-columns: 3;
         border-radius: 30px;
         box-shadow: 0 1px 1.5px 0 rgba(0, 0, 0, 0.12), 0 1px 1px 0 rgba(0, 0, 0, 0.24);
-        width: 128px; height: 42px; background-color: white; display: grid; grid-template-rows: 1; grid-template-columns: 3;
+      }
+      
+      .boutonPasRond {
+        background-color: transparent;
+        box-shadow: none;
+        border: none;
+        /* border-right: solid 1px #D3D3D3; */
+        width: 50px; height: 50px;
+      }
+      #hotspotBtn::after {
+        content: "";
+        position: absolute;
+        border-right: solid 1px #D3D3D3; 
+        height: 36px;
+        right: 50px;
+        top: 7px;
       }
 
       #container {
@@ -65,14 +84,13 @@
     </model-viewer>
   <div id="vignetteEffect" class="vignette"></div>
   <div style="width: 50px;" class="bottom-right">
-    <button onmouseup="resetCamera()" class="mdl-button mdl-js-button mdl-button--fab mdl-button--mini-fab mdl-color--white" style="display: block; margin-bottom: 8px;"><i class="material-icons">add</i></button>
-    <button onmouseup="changeCameraTarget()" class="mdl-button mdl-js-button mdl-button--fab mdl-button--mini-fab mdl-color--white" style="display: block; margin-bottom: 8px;"><i class="material-icons">add</i></button>
+    <!-- TODO FULLSCREEN   -->
+    <button onmouseup="" class="mdl-button mdl-js-button mdl-button--fab mdl-button--mini-fab mdl-color--white" style="display: block; "><i class="material-icons">add</i></button>
   </div>
-  <!-- <div style="" class="bottom-center capsule">
-    <button onmouseup="changeCameraTarget()" class="mdl-button mdl-button--icon" style="display: block; margin-top: 5px; margin-left: 5px; grid-row: 1;"><i class="material-icons">add</i></button>
-    <button onmouseup="changeCameraTarget()" class="mdl-button mdl-button--icon" style="display: block; margin-top: 5px; margin-left: 5px; grid-row: 1;"><i class="material-icons">add</i></button>
-    <button onmouseup="changeCameraTarget()" class="mdl-button mdl-button--icon" style="display: block; margin-top: 5px; margin-left: 5px; grid-row: 1;"><i class="material-icons">add</i></button>
-  </div> -->
+  <div id="theCapsule" class="bottom-center capsule">
+    <button id="hotspotBtn" onmouseup="changeCameraTarget()" class="boutonPasRond" style="display: block; margin-top: 0px; margin-left: 0px; grid-row: 1;"><i class="material-icons">add</i></button>
+    <button onmouseup="resetCamera()" class="boutonPasRond" style="display: block; margin-top: 0px; margin-left: 1px; grid-row: 1;"><i class="material-icons">add</i></button>
+  </div>
   <!-- <button onmouseup="changeCameraTarget()" class="bottom-right mdl-button mdl-js-button mdl-button--fab mdl-button--mini-fab mdl-color--white"><i class="material-icons">add</i></button> -->
   <button onmouseup="switchToTryOnMode()"  class="bottom-left mdl-button mdl-js-button mdl-button--fab mdl-button--mini-fab mdl-color--white"><i class="material-icons">add</i></button>
   <button onmouseup="switchToViewerMode()" class="bottom-left mdl-button mdl-js-button mdl-button--fab mdl-button--mini-fab mdl-color--white" id="switchToViewerBtn" style="display: none;"><i class="material-icons">add</i></button>
@@ -84,7 +102,7 @@
       let initialOrbit
       let hotspotIndex = 0
       let ambianceIndex = 0
-
+      let skyboxAngle = 0;
       
       var video = document.querySelector("#videoElement");
       
@@ -138,7 +156,6 @@
         }
       }
 
-
       function resetCamera() {
         pauseTurntableRotation()
         modelViewer.turntableRotation = 0;
@@ -148,6 +165,8 @@
         modelViewer.setAttribute("camera-target", "auto auto auto");
         modelViewer.cameraOrbit = "auto auto auto";
         modelViewer.setAttribute("field-of-view", "auto");
+        // rotateSkybox(180);
+
         hotspotIndex = 0;
       }
 
@@ -174,6 +193,9 @@
         modelViewer.setAttribute('skybox-image', "");
         ambianceIndex = 0;
 
+        // hide capsule
+        document.querySelector("#theCapsule").style.display = "none";
+
         // Animate glasses pos & zoom
         pauseTurntableRotation()
         stopTurntableRotation()
@@ -182,7 +204,7 @@
         let target = modelViewer.getCameraTarget()
         target.y -= 0.8
         modelViewer.setAttribute("camera-target", target.toString());
-        modelViewer.setAttribute("field-of-view", "180deg");
+        modelViewer.setAttribute("field-of-view", "100deg");
         modelViewer.removeAttribute("camera-controls");
       }
 
@@ -196,6 +218,9 @@
         document.querySelectorAll('button').forEach((button) => button.style.display = 'block');
         document.querySelector('#switchToViewerBtn').style.display = 'none';
 
+        // show capsule
+        document.querySelector("#theCapsule").style.display = "grid";
+
         ambianceIndex = 0;
 
         pauseTurntableRotation()
@@ -207,21 +232,35 @@
         // modelViewer.setAttribute("camera-target", target.toString());
         // modelViewer.setAttribute("field-of-view", "90deg");
         modelViewer.setAttribute("camera-controls", "");
+
+        // rotateSkybox(180);
+      }
+
+      function rotateSkybox(delta) {      
+        skyboxAngle += delta;
+        const orbit = modelViewer.getCameraOrbit();
+        orbit.theta += delta;
+        modelViewer.cameraOrbit = orbit.toString();
+        modelViewer.resetTurntableRotation(skyboxAngle);
+        modelViewer.jumpCameraToGoal();
       }
 
       function changeAmbiance() {
         const ambiances = [
-          "./spruit_sunrise_1k.hdr"
-          // ,"christmas_photo_studio_04_1k.hdr"
-          // ,"drachenfels_cellar_1k.hdr"
-          ,"veranda_1k.hdr"
-          ,"red_wall_1k.hdr"
-          ,"paul_lobe_haus_1k.hdr"
-          ,""
+          "./envmap1.hdr",
+          "./envmap2.hdr",
+          "./envmap3.hdr",
+          ""
         ];
 
         if (!modelViewer)
           modelViewer = document.querySelector('#v');
+
+        // const orbit = modelViewer.getCameraOrbit();
+        // orbit.theta += 3.1415;
+        // modelViewer.cameraOrbit = orbit.toString();
+        // modelViewer.resetTurntableRotation(180);
+        // modelViewer.jumpCameraToGoal();
         
         modelViewer.autoRotate = (ambianceIndex == ambiances.length - 1);
 
